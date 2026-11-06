@@ -1,6 +1,6 @@
 # job-radar
 
-[![tests](https://github.com/YOUR-USERNAME/job-radar/actions/workflows/tests.yml/badge.svg)](https://github.com/YOUR-USERNAME/job-radar/actions)
+[![tests](https://github.com/mekokofahl/job-radar/actions/workflows/tests.yml/badge.svg)](https://github.com/mekokofahl/job-radar/actions)
 
 A personal job-feed monitor. It watches the public job boards of companies you choose, scores every new
 opening against rules **you** define (titles, location, pay, travel, industries to avoid), and tells you about the
@@ -51,7 +51,7 @@ More detail in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 Requires Python 3.11 or newer.
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/job-radar.git
+git clone https://github.com/mekokofahl/job-radar.git
 cd job-radar
 pip install -r requirements.txt
 
