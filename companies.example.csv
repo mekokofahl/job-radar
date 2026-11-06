@@ -1,0 +1,6 @@
+name,ats,token,stage,last_round,employees,sector,notes
+Anthropic,greenhouse,anthropic,,,,AI,Example entry. The board token is the last part of the company's job-board URL
+Notion,ashby,notion,,,,B2B SaaS,Example entry
+Docker,ashby,docker,,,,B2B SaaS,Example entry
+Intercom,greenhouse,intercom,,,,B2B SaaS,Example entry
+Mercury,greenhouse,mercury,,,,fintech,Example entry

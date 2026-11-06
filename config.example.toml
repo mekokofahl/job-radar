@@ -1,0 +1,221 @@
+# ---------------------------------------------------------------
+# job-radar configuration. Copy this file to config.toml and edit freely; it is re-read every polling cycle.
+# The values below describe an EXAMPLE person: based in Germany, wants remote roles open to Europe in
+# delivery / program / implementation work, would relocate to Amsterdam or Lisbon. Change them to your own.
+# Regexes use single quotes (TOML literal strings) so backslashes work.
+# Matching is case-insensitive.
+# ---------------------------------------------------------------
+
+[general]
+poll_minutes   = 10        # how often to check all companies
+alert_min_score = 14       # Telegram alert threshold (lower = more alerts). Use --test score table to tune.
+first_run_digest = 12      # on the very first run, only alert the top N, store the rest silently
+workers        = 8         # parallel requests
+timezone       = "Europe/Berlin"
+home_label     = "Germany"   # used in warning messages ("verify Germany is allowed")
+quiet_hours    = [23, 7]   # Telegram alerts are silent (no sound) between these local hours
+
+[telegram]
+bot_token = ""             # filled in by telegram_setup.py
+chat_id   = ""
+
+[filters]
+# Best-matching include pattern sets the base score. No match = job is ignored.
+title_include = [
+  ['chief of staff', 7],
+  ['special projects', 6],
+  ['head of (delivery|implementation|professional services|customer (delivery|operations)|transformation|business operations)', 7],
+  ['(implementation|deployment|delivery|engagement|integration) (manager|lead|director|head|strategist)', 7],
+  ['customer delivery', 6],
+  ['technical program(me)? manager', 7],
+  ['program(me)? (director|lead)', 6],
+  ['(senior|sr\.?|principal|staff)\s+(technical\s+)?(program(me)?|project) manager', 5],
+  ['program(me)? manager', 5],
+  ['professional services (manager|director|lead|head)', 6],
+  ['(strategic|business|bizops|strategy)( (&|and) | )operations', 5],
+  ['technical product manager', 5],
+  ['forward[- ]deployed', 5],
+  ['transformation (manager|lead|director)', 5],
+  ['product operations', 4],
+  ['operations (manager|lead|director)', 3],
+  # phrasings that real postings use for the same roles
+  ['manager of implementations?|manager,? implementations?', 7],
+  ['technical project manager', 6],
+  ['enterprise project manager', 5],
+  ['(director|head|vp|vice president|manager|lead)\b.{0,30}professional services', 6],
+  ['head of (operations|ai deployment|partner (services )?delivery|customer (success|experience|outcomes)|strategy)', 6],
+  ['(director|head|vp|vice president|leader)( of)? customer (success|experience|outcomes)', 5],
+  ['customer onboarding (manager|lead|director)', 5],
+  ['(strategic|special) (programs?|projects?) (manager|lead|director)', 6],
+  ['(deployment|agent|ai|customer) strategy (manager|lead|director)', 5],
+  ['ai outcomes manager', 5],
+  ['(business|enterprise|strategic) (operations|ops) (manager|lead|director)', 5],
+]
+
+# Titles in deeply technical domains get a penalty (not excluded); this profile is technical but not a developer.
+title_technical = ['\bcompute\b', 'inference', 'infrastructure', 'hardware', 'kernel', '\bgpu', 'machine learning', '\bml\b', 'research', 'model deployment']
+defense_title_pattern = 'defen[cs]e|military|space systems command|space force|\barmy\b|\bnavy\b|air force|national security|intelligence community|\bdod\b'
+
+# Phrases showing pay is localized to where you live (a hire in your country gets local-market pay).
+pay_localized = [
+  '(pay|salary|compensation)( is| will be| may be| are)? (adjusted|based|determined|calibrated|tailored|set)( by| on| to| for)? (your |the )?(location|geograph|country|region|cost)',
+  'salary (is |will be |may be )?(based on|adjusted (to|for)|determined by|tied to) (your |the )?(location|geograph|local|cost[- ]of[- ]living|country)',
+  '(location|geo(graphic)?|region(al)?|country)[- ](based|adjusted|specific)?\s?(pay|salary|compensation)( bands?| tiers?| zones?| differentials?)?',
+  'cost[- ]of[- ]living[- ](adjust|based)',
+  'localized? (pay|compensation|salary)',
+  '(pay|compensation|salary) (varies|differs|depends) (by|on) (your )?(location|country|geograph|region)',
+  '(compensation|salary) (is |will be )?(benchmarked|calibrated|set) (to|for|by) (your )?(local|country|location|market)',
+]
+
+# Places you would relocate to (on-site roles there get a smaller penalty than other target places).
+# Where you already live: on-site roles here carry no relocation penalty (offset by onsite_home_bonus).
+home_places = ['berlin', 'munich', 'hamburg', 'germany']
+# Words that make a remote listing count as open to you (added to europe/emea/worldwide/etc.).
+home_region_words = ['germany', 'deutschland']
+preferred_relocation = ['amsterdam', 'netherlands', 'lisbon', 'portugal']
+
+# Wording in the description that restricts who can be hired (country, region, or US residents only).
+geo_restricted = [
+  'residents? of the (united states|u\.?s\.?)( only)?',
+  'work from anywhere in the americas',
+  'not (a )?(passport[- ]optional|borderless)|flexible within your country',
+  'must (reside|be located|be based|live) in the (united states|u\.?s\.?|uk|united kingdom|canada)',
+  'only (open|available) to (candidates|applicants) (located |based |residing )?in',
+  '(united states|u\.?s\.?)[- ]only\\b',
+  'not eligible to be hired in',
+  'hiring (only )?(in|from) the (united states|u\.?s\.?)',
+  '(north america|us and canada|u\.s\. and canada) only',
+]
+
+# Any match = job is ignored.
+title_exclude = [
+  '\bintern(ship)?\b', '\bjunior\b', '\bjr\.?\b', 'entry[- ]level', 'graduate', '\bassociate\b(?! director)',
+  'coordinator', '\bassistant\b', 'apprentice',
+  'software engineer', 'developer', 'backend', 'frontend', 'full[- ]?stack', 'data scientist',
+  'machine learning engineer', 'devops', '\bsre\b', 'qa engineer', 'security engineer',
+  '\bsales\b', 'account executive', '\bsdr\b', '\bbdr\b', 'recruit', 'talent acquisition',
+  'counsel', 'attorney', 'paralegal', 'accountant', 'payroll', 'nurse', 'driver', 'warehouse',
+  '\btest\b', 'community', 'revenue', 'lead generation', 'demand gen', 'growth', 'marketing', 'enablement',
+  'security', 'risk', 'fraud', 'compliance', 'trust (&|and) safety', 'data cent(er|re)', 'policy', 'government affairs',
+  '\blegal\b', '\bgrc\b', 'm&a finance', 'financial (analyst|planning)', 'fp&a', '\bgtm\b', 'go[- ]to[- ]market',
+  'deal strategy', 'partnerships? strategy', 'researcher', 'user operations', 'sales operations', 'revops',
+  'grants?\b', 'grantmaking', 'grantee', 'fundrais', 'philanthrop', 'donor', 'development (officer|associate|coordinator)', 'advocacy',
+  '\btrust\b', '\b(manager|analyst|specialist|consultant|lead)\s+(i|1)\b', 'safeguards',
+  'real estate', 'facilities', 'supply chain', 'procurement', 'finance manager', 'tax',
+  'people (operations|programs?|partner)', '\bbrand\b', 'deal operations', 'billing (operations|ops|specialist|analyst|support)', 'fleet', 'workplace', 'creative', 'construction', '\bevents?\b', 'content', 'design (operations|ops|systems)', '\bdesigner\b', 'product design', 'compensation', 'hr operations', 'finance operations', '\banalyst\b', 'demand planning', 'ecosystem', 'lab buildouts', 'partner programs', 'sourcing',
+]
+
+# Description boosts: [regex, points]. Each pattern counts once. Total capped by desc_boost_cap.
+desc_boost_cap = 9
+desc_boost = [
+  ['\bAI\b|artificial intelligence|\bLLMs?\b|generative|machine learning|\bRAG\b', 2],
+  ['c-level|\bceo\b|\bcto\b|\bcoo\b|\bcro\b|executive|founder|\bvp\b|vice president', 2],
+  ['first customer|early adopters?|design partners?|pilot customers?|playbook', 2],
+  ['customer|client', 1],
+  ['enterprise', 1],
+  ['engineering|engineers', 1],
+  ['stakeholder', 1],
+  ['series [a-c]\b|seed round|recently raised|fast[- ]growing|hypergrowth|scale[- ]?up|0[- ]to[- ]1|zero to one', 1],
+  ['equity|stock options|\brsus?\b', 1],
+  ['fintech|payments|edtech|education|learning platform|\bsaas\b|\bb2b\b|non-?profit|\bngo\b|social impact', 1],
+  ['acquisition|integration of acquired|post-merger|\bipo\b', 1],
+]
+
+# Industries to avoid. Hit in title/company name = excluded. 3+ hits in description = excluded.
+# Fewer description hits just add a warning flag.
+avoid_patterns = [
+  ['gambling', '\b(casino|sportsbook|igaming|i-gaming|online gambling|gambling|betting|wagering)\b'],
+  ['crypto/blockchain', '\b(crypto|cryptocurrency|blockchain|web3|defi|nft|bitcoin|ethereum|stablecoin)\b'],
+]
+# Defense: only a warning flag (edit if you want to exclude it).
+defense_pattern = '\b(defen[cs]e contractor|munitions|weapons|missile|warfighter|dod\b|department of defense)'
+
+# Remote-first company language in the description earns a small bonus (remote roles only).
+# Deliberately strict: plain "fully remote position" does NOT count, only company-culture phrases.
+remote_culture = 'remote[- ]first|fully distributed|distributed (team|company|workforce)|async(hronous)?[- ]first|work[- ]from[- ]anywhere|borderless|hq[- ]?less|no (physical )?(office|headquarters)|remote since|fully remote (company|team|since)|100% (remote|distributed)'
+
+# Companies to never alert on (substring match on company name).
+exclude_companies = []
+
+# Onsite/hybrid roles are only considered if located in these places (substring/regex on location).
+onsite_ok_places = [
+  'berlin', 'munich', 'hamburg', 'germany', 'amsterdam', 'netherlands', 'lisbon', 'portugal', 'london', 'dublin', 'paris',
+  'barcelona', 'new york', 'san francisco',
+]
+
+# Remote roles: location text must match one of these to count as "OK from where you live".
+# (US-wide remote is allowed here; those get a time-zone flag.)
+remote_ok = '\b(germany|deutschland|europe|emea|eu|european union|worldwide|anywhere|global|united states|usa?|north america|americas)\b'
+remote_eu_ok = '\b(germany|deutschland|europe|emea|eu|european union|worldwide|anywhere|global)\b'
+
+[scores]
+remote_ok_eu = 5          # remote and explicitly open to your country / Europe / worldwide
+remote_ok_us = 0          # US-only listings (many do not hire in other countries; check each)
+remote_unclear = 1       # just "Remote" with no country given: check the posting
+remote_restricted = -5   # remote but tied to other countries
+onsite_target = -7       # onsite/hybrid in one of your target places: only exceptional roles should alert (this profile prefers remote)
+onsite_preferred_bonus = 4   # on-site roles in preferred_relocation cities: a smaller penalty than other target places
+onsite_home_bonus = 7    # offsets onsite_target for your home_places, so on-site roles where you live carry no penalty
+title_technical_penalty = -3
+defense_title_penalty = -4
+onsite_other = -10
+fde_engineer_penalty = -3 # 'Forward Deployed Engineer' titles: engineering-heavy
+salary_below_floor = -3
+salary_floor_eur = 90000      # stated EUR salaries below this are penalized
+pay_localized_penalty = -3
+geo_restricted_penalty = -5   # wording that restricts hiring to certain countries or regions
+remote_culture_bonus = 2    # company describes itself as remote-first / fully distributed / work-from-anywhere
+salary_floor_usd = 100000
+avoid_flag_penalty = -2
+defense_flag_penalty = -2
+
+[digest]
+# One Telegram message a day listing roles that scored just below the alert threshold
+# (e.g. onsite/hybrid roles in your target cities, or strong titles with weak signals).
+enabled = true
+hour = 8            # send after this hour, local time (once per day)
+min_score = 9       # lowest score included
+max_items = 15      # role groups per digest; the rest wait for the next day
+max_age_days = 7    # postings older than this are dropped from the digest
+
+[company_scores]
+# Applied from the optional stage / last_round / employees columns in companies.csv.
+funded_recent_months = 6     # round closed within this many months...
+funded_recent_bonus  = 2     # ...gets this bonus
+stage_bonus          = 2     # late seed / Series A / Series B
+size_min             = 50    # below this many employees: penalty (offset by an extraordinary role)
+size_max             = 900   # above this: small penalty
+size_small_penalty   = -2
+size_large_penalty   = -1
+
+[fast_lane]
+# Alert immediately (even below alert_min_score) for FRESH jobs that are a strong title match,
+# remote and explicitly open to your region. Marked with a lightning bolt in Telegram.
+enabled = true
+hours = 48                 # posted within this many hours (when the posting date is known)
+min_title_weight = 7       # Chief of Staff, Implementation/Delivery/Engagement Manager, TPM, Head of Delivery...
+min_score = 10             # still must clear this floor, to cut the worst noise
+eu_remote_only = true      # false = also fast-lane US-only remote roles
+
+[linkedin]
+# Links you tap yourself (the poller never scrapes LinkedIn). Send /linkedin to your bot, or run linkedin_links.py.
+keywords = ["Program Manager", "Implementation Manager", "Delivery Manager"]
+locations = ["Germany", "European Union"]
+remote_only = true
+window_seconds = 3600      # 3600 = past hour, 86400 = past 24 hours
+combine_keywords = true    # one boolean search per location covering all your titles (3 links, not 15)
+# Silent Telegram message with tappable "past hour" links at these local hours, weekdays only.
+# 15 = US East Coast mid-morning, 18 = US West Coast morning, 21 = US afternoon. Edit to taste; [] turns it off.
+reminder_hours = [15, 17, 19, 21]
+reminder_weekdays_only = true
+
+[travel]
+# Your comfort limit is about 25-30% travel. Postings that state more than max_pct are penalized and flagged.
+max_pct = 30               # stated travel above this is penalized
+over_penalty = -3          # stated travel between max_pct and heavy_pct
+heavy_pct = 40             # above this the heavy penalty applies
+heavy_penalty = -6
+qualitative_penalty = -2   # "extensive/frequent/significant travel" with no percentage
+
+[flags]
+uk_note = "UK: check your work authorization before applying"

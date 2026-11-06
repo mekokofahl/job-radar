@@ -1,0 +1,5 @@
+# One company name per line. Run:  python discover.py seed_names.txt
+# The tool tries common board names on each supported job-board system and reports matches.
+Anthropic
+Notion
+Docker

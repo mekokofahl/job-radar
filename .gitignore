@@ -1,0 +1,33 @@
+# Your private settings and data: never commit these
+config.toml
+.env
+jobs.db
+jobs.db-journal
+companies.csv
+company_blocklist.txt
+Company_Additions.txt
+seed_names.txt
+
+# Generated reports and exports
+*.log
+Needs_Attention.csv
+Unresolved_All.csv
+ats_report.csv
+title_gaps.csv
+test_report*.txt
+jobs_export.csv
+interested_export.csv
+research_*.csv
+
+# Python and editor files
+__pycache__/
+*.pyc
+.venv/
+venv/
+.idea/
+.vscode/
+
+# Local backups and archives
+*.bak
+*.zip
+_cleanup_archive/
